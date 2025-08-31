@@ -2,6 +2,7 @@ const fs = require('fs');
 const Lzx = require('./Lzx');
 const BufferReader = require('../BufferReader');
 const XnbError = require('../XnbError');
+const BufferWriter =  require('../BufferWriter');
 const Log = require('../Log');
 
 /**
@@ -30,8 +31,8 @@ class Presser {
         const lzx = new Lzx(16);
 
         // the full decompressed array
-        let decompressed = [];
-        let z = 0;
+       let decompressed = new BufferWriter(decompressedTodo);
+		let z = 0;
 
         // loop over the bytes left
         while (pos < compressedTodo) {
@@ -68,18 +69,19 @@ class Presser {
 
             Log.debug(`Block Size: ${block_size}, Frame Size: ${frame_size}`);
 
-            // decompress the file based on frame and block size
-            decompressed = decompressed.concat(lzx.decompress(buffer, frame_size, block_size));
+           // decompress the file based on frame and block size
+			decompressed.write(lzx.decompress(buffer, frame_size, block_size));
 
-            // increase position counter
-            pos += block_size;
+			// increase position counter
+			pos += block_size;
         }
 
         // we have finished decompressing the file
         Log.info('File has been successfully decompressed!');
 
-        // return a decompressed buffer
-        return Buffer.from(decompressed);
+      // return a decompressed buffer
+		decompressed.trim();
+		return decompressed.buffer;
     }
 }
 

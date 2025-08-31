@@ -8,6 +8,15 @@ const SingleReader = require('./SingleReader');
  * @extends BaseReader
  */
 class Vector4Reader extends BaseReader {
+    static isTypeOf(type) {
+        switch (type) {
+            case 'Microsoft.Xna.Framework.Content.Vector4Reader':
+            case 'Microsoft.Xna.Framework.Vector4':
+                return true;
+            default: return false;
+        }
+    }
+
     /**
      * Reads Vector4 from buffer.
      * @param {BufferReader} buffer
@@ -16,12 +25,21 @@ class Vector4Reader extends BaseReader {
     read(buffer) {
         const singleReader = new SingleReader();
 
-        let x = singleReader.read(buffer);
-        let y = singleReader.read(buffer);
-        let z = singleReader.read(buffer);
-        let w = singleReader.read(buffer);
+        let X = singleReader.read(buffer);
+        let Y = singleReader.read(buffer);
+        let Z = singleReader.read(buffer);
+        let W = singleReader.read(buffer);
 
-        return { x, y, z, w };
+        return { X, Y, Z, W };
+    }
+
+    write(buffer, content, resolver) {
+        this.writeIndex(buffer, resolver);
+        const singleReader = new SingleReader();
+        singleReader.write(buffer, content.X, null);
+        singleReader.write(buffer, content.Y, null);
+        singleReader.write(buffer, content.Z, null);
+        singleReader.write(buffer, content.W, null);
     }
 }
 

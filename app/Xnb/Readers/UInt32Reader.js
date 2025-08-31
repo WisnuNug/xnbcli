@@ -9,25 +9,34 @@ const BufferWriter = require('../../BufferWriter');
  * @extends BaseReader
  */
 class UInt32Reader extends BaseReader {
-    /**
-     * Reads UInt32 from buffer.
-     * @param {BufferReader} buffer
-     * @returns {Number}
-     */
-    read(buffer) {
-        return buffer.readUInt32();
-    }
+	static isTypeOf(type) {
+		switch (type) {
+			case 'Microsoft.Xna.Framework.Content.UInt32Reader':
+			case 'System.UInt32':
+				return true;
+			default: return false;
+		}
+	}
 
-    /**
-     * 
-     * @param {BufferWriter} buffer 
-     * @param {Number} content 
-     * @param {ReaderResolver} resolver 
-     */
-    write(buffer, content, resolver) {
-        this.writeIndex(buffer, resolver);
-        buffer.writeUInt32(content);
-    }
+	/**
+	 * Reads UInt32 from buffer.
+	 * @param {BufferReader} buffer
+	 * @returns {Number}
+	 */
+	read(buffer) {
+		return buffer.readUInt32();
+	}
+
+	/**
+	 * 
+	 * @param {BufferWriter} buffer 
+	 * @param {Number} content 
+	 * @param {ReaderResolver} resolver 
+	 */
+	write(buffer, content, resolver) {
+		this.writeIndex(buffer, resolver);
+		buffer.writeUInt32(content);
+	}
 }
 
 module.exports = UInt32Reader;

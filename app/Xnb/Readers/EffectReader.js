@@ -10,33 +10,43 @@ const UInt32Reader = require('./UInt32Reader');
  */
 class EffectReader extends BaseReader {
 
-    read(buffer) {
-        const uint32Reader = new UInt32Reader();
+	static isTypeOf(type) {
+		switch (type) {
+			case 'Microsoft.Xna.Framework.Content.EffectReader':
+			case 'Microsoft.Xna.Framework.Graphics.Effect':
+				return true;
+			default: return false;
+		}
+	}
 
-        const size = uint32Reader.read(buffer);
-        const bytecode = buffer.read(size);
+	read(buffer) {
+		const uint32Reader = new UInt32Reader();
 
-        return { export: { type: this.type, data: bytecode } };
-    }
+		const size = uint32Reader.read(buffer);
+		const bytecode = buffer.read(size);
 
-    /**
-     * Writes Effects into the buffer
-     * @param {BufferWriter} buffer
-     * @param {Mixed} data The data
-     * @param {ReaderResolver} resolver
-     */
-    write(buffer, content, resolver) {
-        this.writeIndex(buffer, resolver);
+		return { export: { type: this.type, data: bytecode } };
+	}
 
-        const uint32Reader = new UInt32Reader();
+	/**
+	 * Writes Effects into the buffer
+	 * @param {BufferWriter} buffer
+	 * @param {Mixed} data The data
+	 * @param {ReaderResolver} resolver
+	 */
+	write(buffer, content, resolver) {
+		this.writeIndex(buffer, resolver);
 
-        uint32Reader.write(buffer, content.data.length, null);
-        buffer.concat(content.data);
-    }
+		const data = content.export.data;
+		const uint32Reader = new UInt32Reader();
 
-    isValueType() {
-        return false;
-    }
+		uint32Reader.write(buffer, data.byteLength, null);
+		buffer.concat(data);
+	}
+
+	isValueType() {
+		return false;
+	}
 }
 
 module.exports = EffectReader;

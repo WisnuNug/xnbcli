@@ -8,25 +8,34 @@ const BufferWriter = require('../../BufferWriter');
  * @extends BaseReader
  */
 class BooleanReader extends BaseReader {
-    /**
-     * Reads Boolean from buffer.
-     * @param {BufferReader} buffer
-     * @returns {Boolean}
-     */
-    read(buffer) {
-        return Boolean(buffer.read(1).readInt8());
-    }
+	static isTypeOf(type) {
+		switch (type) {
+			case 'Microsoft.Xna.Framework.Content.BooleanReader':
+			case 'System.Boolean':
+				return true;
+			default: return false;
+		}
+	}
 
-    /**
-     * Writes Boolean into buffer
-     * @param {BufferWriter} buffer
-     * @param {Mixed} data
-     * @param {ReaderResolver}
-     */
-    write(buffer, content, resolver) {
-        this.writeIndex(buffer, resolver);
-        buffer.writeByte(content);
-    }
+	/**
+	 * Reads Boolean from buffer.
+	 * @param {BufferReader} buffer
+	 * @returns {Boolean}
+	 */
+	read(buffer) {
+		return Boolean(buffer.readInt());
+	}
+
+	/**
+	 * Writes Boolean into buffer
+	 * @param {BufferWriter} buffer
+	 * @param {Mixed} data
+	 * @param {ReaderResolver}
+	 */
+	write(buffer, content, resolver) {
+		this.writeIndex(buffer, resolver);
+		buffer.writeByte(content);
+	}
 }
 
 module.exports = BooleanReader;

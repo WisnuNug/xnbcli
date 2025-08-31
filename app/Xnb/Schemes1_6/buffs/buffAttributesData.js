@@ -1,0 +1,20 @@
+module.exports = {
+	"CombatLevel": "Single",
+	"FarmingLevel": "Single",
+	"FishingLevel": "Single",
+	"MiningLevel": "Single",
+	"LuckLevel": "Single",
+	"ForagingLevel": "Single",
+	"MaxStamina": "Single",
+	"MagneticRadius": "Single",
+	"Speed": "Single",
+	"Defense": "Single",
+	"Attack": "Single",
+	"AttackMultiplier": "Single",
+	"Immunity": "Single",
+	"KnockbackMultiplier": "Single",
+	"WeaponSpeedMultiplier": "Single",
+	"CriticalChanceMultiplier": "Single",
+	"CriticalPowerMultiplier": "Single",
+	"WeaponPrecisionMultiplier": "Single"
+};

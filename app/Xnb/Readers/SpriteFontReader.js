@@ -15,12 +15,21 @@ const Vector3Reader = require('./Vector3Reader');
  * @extends BaseReader
  */
 class SpriteFontReader extends BaseReader {
-    /**
-     * Reads SpriteFont from buffer.
-     * @param {BufferReader} buffer
-     * @param {ReaderResolver} resolver
-     * @returns {object}
-     */
+    static isTypeOf(type) {
+        switch (type) {
+            case 'Microsoft.Xna.Framework.Content.SpriteFontReader':
+                return true;
+            default: return false;
+        }
+    }
+    static parseTypeList() {
+        return ["SpriteFont", "Texture2D", 'List<Rectangle>', 'Rectangle',
+            'List<Rectangle>', 'Rectangle',
+            'List<Char>', 'Char',
+            null, null,
+            'List<Vector3>', 'Vector3',
+            'Nullable<Char>', 'Char'];
+    }
     read(buffer, resolver) {
         const int32Reader = new Int32Reader();
         const singleReader = new SingleReader();

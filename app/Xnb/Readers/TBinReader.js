@@ -9,28 +9,37 @@ const Int32Reader = require('./Int32Reader');
  * @extends BaseReader
  */
 class TBinReader extends BaseReader {
-    read(buffer) {
-        const int32Reader = new Int32Reader();
+	static isTypeOf(type) {
+		switch (type) {
+			case 'xTile.Pipeline.TideReader':
+				return true;
+			default: return false;
+		}
+	}
 
-        // read in the size of the data block
-        let size = int32Reader.read(buffer);
-        // read in the data block
-        let data = buffer.read(size);
+	read(buffer) {
+		const int32Reader = new Int32Reader();
 
-        // return the data
-        return { export: { type: this.type, data } };
-    }
+		// read in the size of the data block
+		let size = int32Reader.read(buffer);
+		// read in the data block
+		let data = buffer.read(size);
 
-    write(buffer, content, resolver) {
-        this.writeIndex(buffer, resolver);
-        const int32Reader = new Int32Reader();
-        int32Reader.write(buffer, content.data.length, null);
-        buffer.concat(content.data);
-    }
+		// return the data
+		return { export: { type: this.type, data } };
+	}
 
-    isValueType() {
-        return false;
-    }
+	write(buffer, content, resolver) {
+		this.writeIndex(buffer, resolver);
+		const data = content.export.data;
+		const int32Reader = new Int32Reader();
+		int32Reader.write(buffer, data.byteLength, null);
+		buffer.concat(data);
+	}
+
+	isValueType() {
+		return false;
+	}
 }
 
 module.exports = TBinReader;

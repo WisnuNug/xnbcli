@@ -8,36 +8,45 @@ const Int32Reader = require('./Int32Reader');
  * @extends BaseReader
  */
 class RectangleReader extends BaseReader {
-    /**
-     * Reads Rectangle from buffer.
-     * @param {BufferReader} buffer
-     * @returns {object}
-     */
-    read(buffer) {
-        const int32Reader = new Int32Reader();
+	static isTypeOf(type) {
+		switch (type) {
+			case 'Microsoft.Xna.Framework.Content.RectangleReader':
+			case 'Microsoft.Xna.Framework.Rectangle':
+				return true;
+			default: return false;
+		}
+	}
 
-        const x = int32Reader.read(buffer);
-        const y = int32Reader.read(buffer);
-        const width = int32Reader.read(buffer);
-        const height = int32Reader.read(buffer);
+	/**
+	 * Reads Rectangle from buffer.
+	 * @param {BufferReader} buffer
+	 * @returns {object}
+	 */
+	read(buffer) {
+		const int32Reader = new Int32Reader();
 
-        return { x, y, width, height };
-    }
+		const X = int32Reader.read(buffer);
+		const Y = int32Reader.read(buffer);
+		const Width = int32Reader.read(buffer);
+		const Height = int32Reader.read(buffer);
 
-    /**
-     * Writes Effects into the buffer
-     * @param {BufferWriter} buffer
-     * @param {Mixed} data The data
-     * @param {ReaderResolver} resolver
-     */
-    write(buffer, content, resolver) {
-        this.writeIndex(buffer, resolver);
-        const int32Reader = new Int32Reader();
-        int32Reader.write(buffer, content.x, null);
-        int32Reader.write(buffer, content.y, null);
-        int32Reader.write(buffer, content.width, null);
-        int32Reader.write(buffer, content.height, null);
-    }
+		return { X, Y, Width, Height };
+	}
+
+	/**
+	 * Writes Effects into the buffer
+	 * @param {BufferWriter} buffer
+	 * @param {Mixed} data The data
+	 * @param {ReaderResolver} resolver
+	 */
+	write(buffer, content, resolver) {
+		this.writeIndex(buffer, resolver);
+		const int32Reader = new Int32Reader();
+		int32Reader.write(buffer, content.X, null);
+		int32Reader.write(buffer, content.Y, null);
+		int32Reader.write(buffer, content.Width, null);
+		int32Reader.write(buffer, content.Height, null);
+	}
 }
 
 module.exports = RectangleReader;

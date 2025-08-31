@@ -8,28 +8,37 @@ const SingleReader = require('./SingleReader');
  * @extends BaseReader
  */
 class Vector3Reader extends BaseReader {
-    /**
-     * Reads Vector3 from buffer.
-     * @param {BufferReader} buffer
-     * @returns {object}
-     */
-    read(buffer) {
-        const singleReader = new SingleReader();
+	static isTypeOf(type) {
+		switch (type) {
+			case 'Microsoft.Xna.Framework.Content.Vector3Reader':
+			case 'Microsoft.Xna.Framework.Vector3':
+				return true;
+			default: return false;
+		}
+	}
 
-        let x = singleReader.read(buffer);
-        let y = singleReader.read(buffer);
-        let z = singleReader.read(buffer);
+	/**
+	 * Reads Vector3 from buffer.
+	 * @param {BufferReader} buffer
+	 * @returns {object}
+	 */
+	read(buffer) {
+		const singleReader = new SingleReader();
 
-        return { x, y, z };
-    }
+		let X = singleReader.read(buffer);
+		let Y = singleReader.read(buffer);
+		let Z = singleReader.read(buffer);
 
-    write(buffer, content, resolver) {
-        this.writeIndex(buffer, resolver);
-        const singleReader = new SingleReader();
-        singleReader.write(buffer, content.x, null);
-        singleReader.write(buffer, content.y, null);
-        singleReader.write(buffer, content.z, null);
-    }
+		return { X, Y, Z };
+	}
+
+	write(buffer, content, resolver) {
+		this.writeIndex(buffer, resolver);
+		const singleReader = new SingleReader();
+		singleReader.write(buffer, content.X, null);
+		singleReader.write(buffer, content.Y, null);
+		singleReader.write(buffer, content.Z, null);
+	}
 }
 
 module.exports = Vector3Reader;

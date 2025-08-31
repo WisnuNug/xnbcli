@@ -7,41 +7,18 @@ const { exportFile, resolveImports } = require('./app/Porter');
 const chalk = require('chalk');
 const mkdirp = require('mkdirp');
 const walk = require('walk');
-const got = require('got');
-const compareVersions = require('compare-versions');
+const got = require('got'); 
 
 // used for displaying the tally of success and fail
 let success = 0;
 let fail = 0;
 
 // define the version number
-const VERSION = '1.0.7';
+const VERSION = '1.0.7-1';
 
-// check for updates
-async function checkUpdate() {
-
-    try {
-        // fetch the package.json to see if there's a new version available
-        const response = await got('https://raw.githubusercontent.com/LeonBlade/xnbcli/master/package.json', { json: true });
-        const remoteVersion = response.body.version;
-
-        // compare remote version with the current version
-        if (compareVersions(remoteVersion, VERSION) > 0) {
-            // NOTE: this bugs the user every time they run the tool, not exactly a bad idea but maybe should think
-            // of a different approach to not hit github every time?  idk maybe it doesn't matter though
-            Log.info(`${chalk.bold.green(`xnbcli v${remoteVersion} is available!`)} Visit ${chalk.blue('https://github.com/LeonBlade/xnbcli/releases')} to get the latest release.`);
-        }
-    }
-    catch (error) {
-        Log.error('Failed to search for a new update. Application should still function normally.');
-        Log.error(error);
-    }
-}
-
-(() => {
-    // call the init function to get the party started
+// async wrapper for function
+(async () => {
     init();
-
 })();
 
 // initialize function called after we fetch the newest version
@@ -93,7 +70,9 @@ function init() {
 function details() {
     // give a final analysis of the files
     console.log(`${chalk.bold.green('Success')} ${success}`);
-    console.log(`${chalk.bold.red('Fail')} ${fail}`);
+    console.log(`${chalk.bold.red('Fail')} ${fail}`); 
+      console.log(`${chalk.bold.yellow('XNBCLI Unoffical For SV 1.6 ByWisnuNug')}, v.${VERSION}`); 
+  //   Log.info(`XNBCLI Unoffical For SV 1.6 ByWisnuNug, Version "${VERSION}" ...`);
 }
 
 /**
@@ -102,37 +81,28 @@ function details() {
  * @param {String} output
  */
 function processUnpack(input, output) {
-    // catch any exceptions to keep a batch of files moving
     try {
-        // ensure that the input file has the right extension
         if (path.extname(input).toLocaleLowerCase() != '.xnb')
             return;
-
-        // create new instance of XNB
+        Log.info(`Reading file "${input}" ...`);
+        const nodeBuffer = fs.readFileSync(input);
+        const arrayBuffer = nodeBuffer.buffer.slice(nodeBuffer.byteOffset, nodeBuffer.byteOffset + nodeBuffer.byteLength);
         const xnb = new Xnb();
+        const result = xnb.load(arrayBuffer);
 
-        // load the XNB and get the object from it
-        const result = xnb.load(input);
-
-        // save the file
         if (!exportFile(output, result)) {
             Log.error(`File ${output} failed to save!`);
             return fail++;
         }
-
-        // log that the file was saved
         Log.info(`Output file saved: ${output}`);
-
-        // increase success count
         success++;
     }
     catch (ex) {
-        // log out the error
         Log.error(`Filename: ${input}\n${ex.stack}\n`);
-        // increase fail count
         fail++;
     }
 }
+
 
 /**
  * Process the pack of files to xnb
@@ -142,36 +112,31 @@ function processUnpack(input, output) {
  */
 function processPack(input, output) {
     try {
-        // ensure that the input file has the right extension
         if (path.extname(input).toLocaleLowerCase() != '.json')
             return;
-
+ 
         Log.info(`Reading file "${input}" ...`);
 
-        // create instance of xnb
         const xnb = new Xnb();
 
-        // resolve the imports
         const json = resolveImports(input);
-        // convert the JSON to XNB
-        const buffer = xnb.convert(json);
 
-        // write the buffer to the output
+        const arrayBuffer = xnb.convert(json);
+
+        const buffer = Buffer.from(arrayBuffer);
+
         fs.writeFileSync(output, buffer);
 
-        // log that the file was saved
         Log.info(`Output file saved: ${output}`);
 
-        // increase success count
         success++;
     }
     catch (ex) {
-        // log out the error
         Log.error(`Filename: ${input}\n${ex.stack}\n`);
-        // increase fail count
         fail++;
     }
 }
+
 
 /**
  * Used to walk a path with input/output for processing

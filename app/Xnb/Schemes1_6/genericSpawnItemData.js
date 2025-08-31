@@ -1,0 +1,20 @@
+module.exports = {
+	$Id: "String",
+	$ItemId: "String",
+	$RandomItemId: ["String"],
+	$MaxItems: "Int32",
+	MinStack: "Int32",
+	MaxStack: "Int32",
+	Quality: "Int32",
+	$ObjectInternalName: "String",
+	$ObjectDisplayName: "String",
+	$ObjectColor : "String",
+	ToolUpgradeLevel: "Int32",
+	IsRecipe: "Boolean",
+	$StackModifiers: ["StardewValley.GameData.QuantityModifier"],
+	StackModifierMode: "StardewValley.GameData.QuantityModifier+QuantityModifierMode",  
+	$QualityModifiers: ["StardewValley.GameData.QuantityModifier"],
+	QualityModifierMode: "StardewValley.GameData.QuantityModifier+QuantityModifierMode",  
+	$ModData: {"String": "String"},
+	$PerItemCondition: "String"
+}

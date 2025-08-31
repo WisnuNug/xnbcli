@@ -9,11 +9,12 @@ const readers = [
     'DoubleReader',
     'EffectReader',
     'Int32Reader',
+    'EnumReader',
     'ListReader',
+    'LightweightTexture2DReader',
     'NullableReader',
     'RectangleReader',
     'SingleReader',
-    'SoundEffectReader',
     'SpriteFontReader',
     'StringReader',
     'TBinReader',
@@ -21,7 +22,9 @@ const readers = [
     'UInt32Reader',
     'Vector2Reader',
     'Vector3Reader',
-    'Vector4Reader'
+    'Vector4Reader',
+    'ReflectiveReader',
+    'PointReader'
 ];
 
 // loop over readers to export them
@@ -39,10 +42,11 @@ module.exports = {
     EffectReader: require('./EffectReader'),
     Int32Reader: require('./Int32Reader'),
     ListReader: require('./ListReader'),
+    LightweightTexture2DReader: require('./LightweightTexture2DReader'),
+    EnumReader: require('./EnumReader'),
     NullableReader: require('./NullableReader'),
     RectangleReader: require('./RectangleReader'),
     SingleReader: require('./SingleReader'),
-    SoundEffectReader: require('./SoundEffectReader'),
     SpriteFontReader: require('./SpriteFontReader'),
     StringReader: require('./StringReader'),
     TBinReader: require('./TBinReader'),
@@ -50,5 +54,7 @@ module.exports = {
     UInt32Reader: require('./UInt32Reader'),
     Vector2Reader: require('./Vector2Reader'),
     Vector3Reader: require('./Vector3Reader'),
-    Vector4Reader: require('./Vector4Reader')
+    Vector4Reader: require('./Vector4Reader'),
+    ReflectiveReader: require('./ReflectiveReader'),
+    PointReader: require('./PointReader')
 };

@@ -1,11 +1,29 @@
+const { stringToUTF8 }  = require('./UTF8ToString');
+
+
 class BufferWriter {
 
-    constructor(size = 500) {
-        // the buffer to write to
-        this._buffer = Buffer.alloc(size);
-        // the current byte position
-        this.bytePosition = 0;
-    }
+   constructor(size = 2048) {
+		/**
+		 * internal buffer for the writer
+		 * @private
+		 * @type {ArrayBuffer}
+		 */
+		this._buffer = new ArrayBuffer(size);
+		/**
+		 * internal buffer for the reader
+		 * @private
+		 * @type {DataView}
+		 */
+		this._dataView = new DataView(this._buffer);
+
+		/**
+		 * Seek index for the internal buffer.
+		 * @private
+		 * @type {Number}
+		 */
+		this.bytePosition = 0;
+	}
 
     /**
      * Returns the buffer.
@@ -17,137 +35,177 @@ class BufferWriter {
         return this._buffer;
     }
 
-    // trim the buffer to the byte position
-    trim() {
-        const tBuffer = Buffer.alloc(Number.parseInt(this.bytePosition));
-        this._buffer.copy(tBuffer, 0, 0, this.bytePosition);
-        this._buffer = tBuffer;
-    }
+    //Reconnect the DataView to the current ArrayBuffer
+	reconnectDataView() {
+		this._dataView = new DataView(this._buffer);
+	}
+
+   // trim the buffer to the byte position
+	trim(pending = false) {
+		this._buffer = this.buffer.slice(0,this.bytePosition);
+		if(!pending) this.reconnectDataView();
+	}
 
     /**
      * Allocates number of bytes into the buffer and assigns more space if needed
      * @param {Number} bytes Number of bytes to allocate into the buffer
      */
-    alloc(bytes) {
-        if (this._buffer.length < this.bytePosition + bytes) {
-            let tBuffer = Buffer.alloc(Math.max(this._buffer.length * 2, this._buffer.length + bytes));
-            this._buffer.copy(tBuffer, 0);
-            this._buffer = tBuffer;
-        }
-        return this;
-    }
+   /**
+	 * Allocates number of bytes into the buffer and assigns more space if needed
+	 * @param {Number} bytes Number of bytes to allocate into the buffer
+	 */
+	alloc(bytes) {
+		if (this._buffer.byteLength <= this.bytePosition + bytes) {
+			const tBuffer = new ArrayBuffer(this._buffer.byteLength + bytes);
+			const tDataView = new DataView(tBuffer);
+
+			for(let i=0; i<this.buffer.byteLength; i++) {
+				tDataView.setUint8(i, this._dataView.getUint8(i) );
+			}
+
+			this._buffer = tBuffer;
+			this._dataView = tDataView;
+		}
+		return this;
+	}
+
 
     concat(buffer) {
-        this.alloc(buffer.length);
-        this._buffer.set(buffer, this.bytePosition);
-        this.bytePosition += buffer.length;
-    }
+		const targetBufferView = new Uint8Array(buffer);
+		const newPosition = this.bytePosition + targetBufferView.length;
+		this.alloc(targetBufferView.length);
 
+		for(let i=this.bytePosition; i<newPosition; i++) {
+			this._dataView.setUint8( i, targetBufferView[i-this.bytePosition] );
+		}
+
+		this.bytePosition = newPosition;
+
+		this.trim();
+	}
     /**
-     * Writes bytes to the buffer
-     * @param {Mixed} string 
-     */
-    write(string, length = Buffer.byteLength(string)) {
-        this.alloc(length).buffer.write(string, this.bytePosition);
-        this.bytePosition += length;
-    }
+	 * Writes string to the buffer
+	 * @param {String} string 
+	 */
+	writeString(str) {
+		let utf8Data = stringToUTF8(str);
+		this.write(utf8Data);
+	}
+
+   /**
+	 * Writes bytes to the buffer
+	 * @param {Mixed} bytes 
+	 */
+	write(bytes) {
+		const targetBufferView = new Uint8Array(bytes);
+
+		const newPosition = this.bytePosition + targetBufferView.length;
+		this.alloc(targetBufferView.length);
+
+		for(let i=this.bytePosition; i<newPosition; i++) {
+			this._dataView.setUint8( i, targetBufferView[i-this.bytePosition] );
+		}
+
+		this.bytePosition = newPosition;
+	}
 
     /**
      * Write a byte to the buffer
      * @param {Mixed} byte 
      */
-    writeByte(byte) {
-        this.alloc(1).buffer.writeUInt8(byte, this.bytePosition);
-        this.bytePosition++;
-    }
+   writeByte(byte) {
+		this.alloc(1)._dataView.setUint8(this.bytePosition, byte);
+		this.bytePosition++;
+	}
 
     /**
      * Write an int8 to the buffer
      * @param {Number} number 
      */
-    writeInt(number) {
-        this.alloc(1).buffer.writeInt8(byte, this.bytePosition);
-        this.bytePosition++;
-    }
+   writeInt(number) {
+		this.alloc(1)._dataView.setInt8(this.bytePosition, number);
+		this.bytePosition++;
+	}
 
     /**
      * Write a uint8 to the buffer
      * @param {Number} number 
      */
-    writeUInt(number) {
-        this.alloc(1).buffer.writeUInt8(byte, this.bytePosition);
-        this.bytePosition++;
-    }
+  writeUInt(number) {
+		this.alloc(1)._dataView.setUint8(this.bytePosition, number);
+		this.bytePosition++;
+	}
 
-    /**
-     * Write a int16 to the buffer
-     * @param {Number} number 
-     */
-    writeInt16(number) {
-        this.alloc(2).buffer.writeInt16(byte, this.bytePosition);
-        this.bytePosition += 2;
-    }
+   /**
+	 * Write a int16 to the buffer
+	 * @param {Number} number 
+	 */
+	writeInt16(number) {
+		this.alloc(2)._dataView.setInt16(this.bytePosition, number, true);
+		this.bytePosition += 2;
+	}
 
-    /**
-     * Write a uint16 to the buffer
-     * @param {Number} number 
-     */
-    writeUInt16(number) {
-        this.alloc(2).buffer.writeUInt16(byte, this.bytePosition);
-        this.bytePosition += 2;
-    }
+	/**
+	 * Write a uint16 to the buffer
+	 * @param {Number} number 
+	 */
+	writeUInt16(number) {
+		this.alloc(2)._dataView.setUint16(this.bytePosition, number, true);
+		this.bytePosition += 2;
+	}
 
-    /**
-     * Write a int32 to the buffer
-     * @param {Number} number 
-     */
-    writeInt32(number) {
-        this.alloc(4).buffer.writeInt32LE(number, this.bytePosition);
-        this.bytePosition += 4;
-    }
+	/**
+	 * Write a int32 to the buffer
+	 * @param {Number} number 
+	 */
+	writeInt32(number) {
+		this.alloc(4)._dataView.setInt32(this.bytePosition, number, true);
+		this.bytePosition += 4;
+	}
 
-    /**
-     * Write a uint32 to the buffer
-     * @param {Number} number 
-     */
-    writeUInt32(number) {
-        this.alloc(4).buffer.writeUInt32LE(number, this.bytePosition);
-        this.bytePosition += 4;
-    }
+	/**
+	 * Write a uint32 to the buffer
+	 * @param {Number} number 
+	 */
+	writeUInt32(number) {
+		this.alloc(4)._dataView.setUint32(this.bytePosition, number, true);
+		this.bytePosition += 4;
+	}
 
-    /**
-     * Write a float to the buffer
-     * @param {Number} number 
-     */
-    writeSingle(number) {
-        this.alloc(4).buffer.writeFloatLE(number, this.bytePosition);
-        this.bytePosition += 4;
-    }
+   /**
+	 * Write a float to the buffer
+	 * @param {Number} number 
+	 */
+	writeSingle(number) {
+		this.alloc(4)._dataView.setFloat32(this.bytePosition, number, true);
+		this.bytePosition += 4;
+	}
 
-    /**
-     * Write a double to the buffer
-     * @param {Number} number 
-     */
-    writeDouble(number) {
-        this.alloc(4).buffer.writeDoubleLE(number, this.bytePosition);
-        this.bytePosition += 4;
-    }
+	/**
+	 * Write a double to the buffer
+	 * @param {Number} number 
+	 */
+	writeDouble(number) {
+		this.alloc(8)._dataView.setFloat64(this.bytePosition, number, true);
+		this.bytePosition += 8;
+	}
 
-    /**
-     * Write a 7-bit number to the buffer
-     * @param {Number} number 
-     */
-    write7BitNumber(number) {
-        this.alloc(2);
-        do {
-            let byte = number & 0x7F;
-            number = number >> 7;
-            if (number) byte |= 0x80;
-            this.buffer.writeUInt8(byte, this.bytePosition);
-            this.bytePosition++;
-        }
-        while (number);
-    }
+   /**
+	 * Write a 7-bit number to the buffer
+	 * @param {Number} number 
+	 */
+	write7BitNumber(number) {
+		this.alloc(2);
+		do {
+			let byte = number & 0x7F;
+			number = number >> 7;
+			if (number) byte |= 0x80;
+			this._dataView.setUint8(this.bytePosition, byte);
+			this.bytePosition++;
+		}
+		while (number);
+	}
+
 
 }
 
