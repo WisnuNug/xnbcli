@@ -1,0 +1,38 @@
+name: Build binaries
+
+on:
+  workflow_dispatch:        # Bisa jalan manual dari tab Actions
+  push:
+    tags: ["v*"]            # Jalan otomatis kalau push tag, misalnya v1.0.0
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - run: npm install -g pkg
+
+      - name: Build Windows binary
+        if: matrix.os == 'windows-latest'
+        run: pkg -t node18-win-x64 xnbcli.js -o dist/xnbcli-win.exe
+
+      - name: Build macOS binaries (x64 + arm64)
+        if: matrix.os == 'macos-latest'
+        run: |
+          mkdir -p dist
+          pkg -t node18-macos-x64 xnbcli.js -o dist/xnbcli-macos-x64
+          pkg -t node18-macos-arm64 xnbcli.js -o dist/xnbcli-macos-arm64
+          lipo -create -output dist/xnbcli-macos-universal dist/xnbcli-macos-x64 dist/xnbcli-macos-arm64
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}-artifacts
+          path: dist/** 
