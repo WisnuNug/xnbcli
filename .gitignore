@@ -7,6 +7,11 @@ node_modules
 # Dev files
 /.vscode
 /.vs
+/.jshintrc
+
+# Packed/Unpacked files
+packed/**
+unpacked/**
 
 # Excluding our md files
 !packed/*.md
